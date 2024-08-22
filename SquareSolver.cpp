@@ -4,15 +4,19 @@
 #include <TXLib.h>
 
 const int INF_ROOTS = 10;
-const double eps = 0.000001;
+const double eps = 0.00000001;
 
 //-----------------------------------------------------------------------------
 
-double ScanIn ();
+double ScanDouble ();
+
+int ScanInt ();
 
 void flush ();
 
 void PrintOut (int nRoots, double x1, double x2);
+
+bool RT (double a, double b, double c, double x1Expected, double x2Expected, int nRootsExpected, int numTest);
 
 bool Compare (double a, double b);
 
@@ -26,13 +30,28 @@ int Solver (double a, double b, double c, double* x1, double* x2);
 
 int main()
 {
-    double a = 0, b = 0, c = 0, x1 = 0, x2 = 0;
-    a = ScanIn ();
-    b = ScanIn ();
-    c = ScanIn ();
-    int nRoots = Solver (a, b, c, &x1, &x2);
-    PrintOut (nRoots, x1, x2);
+    printf ("Введите номер теста:\n");
+    int numTest = ScanInt ();
 
+    printf ("Введите коэффициенты уравнения:\n");
+    double a = ScanDouble ();
+    double b = ScanDouble ();
+    double c = ScanDouble ();
+
+    printf ("Введите ожидаемое количество корней уравнения:\n");
+    int nRootsExpected = ScanInt ();
+
+    printf ("Введите ожидаемые корни уравнения:\n");
+    double x1Expected = ScanDouble ();
+    double x2Expected = ScanDouble ();
+
+    if (RT (a, b, c, x1Expected, x2Expected, nRootsExpected, numTest))
+    {
+        printf ("Тест%d завершился успешно.", numTest);
+    }
+    else
+    {
+    }
     return 0;
 }
 
@@ -94,7 +113,7 @@ int Solver (double a, double b, double c, double* x1, double* x2)
 
 //-----------------------------------------------------------------------------
 
-double ScanIn ()
+double ScanDouble ()
 {
     while (1)
     {
@@ -155,19 +174,52 @@ bool Compare (double a, double b)
 
 //-----------------------------------------------------------------------------
 
-/*int RT (double a, double b, double c, double x1Expected, double x2Expected, int nRootsExpected)
+int ScanInt ()
+{
+    while (1)
+    {
+        int a = 0;
+        int result = scanf ("%d", &a);
+        if (result == 0 || getchar () != '\n')
+        {
+            flush ();
+            printf ("Введите целочисленное значение:\n");
+            continue;
+        }
+        else
+        {
+            return a;
+        }
+    }
+}
+
+//-----------------------------------------------------------------------------
+
+bool RT (double a, double b, double c, double x1Expected, double x2Expected, int nRootsExpected, int numTest)
 {
     double x1 = 0, x2 = 0;
     int nRoots = Solver (a, b, c, &x1, &x2);
-    if (nRoots != nRootsExpected || x1 != x1Expected || x2 != x2Expected)
+    if (nRoots != nRootsExpected)
     {
-        printf ("ERROR Test %d; a = %lg, b = %lg, c = %lg, x1 = %lg, x2 = %lg, nRoots = %d"
-            "Expected: x1 = %lg, x2 = %lg, nRoots = %d\n",
-            a, b, c, x1, x2, nRoots, x1Expected, x2Expected, nRootsExpected);
-        return -1;
+        printf ("ERROR Test %d: a = %lg, b = %lg, c = %lg, x1 = %lg, x2 = %lg, nRoots = %d.\n"
+                "Expected: x1 = %lg, x2 = %lg, nRoots = %d.\n",
+                 numTest, a, b, c, x1, x2, nRoots, x1Expected, x2Expected, nRootsExpected);
+
+        return 0;
+    }
+    if (Compare (x1, x1Expected) && Compare (x2, x2Expected))
+    {
+        return 1;
+    }
+    else if (Compare (x1, x2Expected) && Compare (x2, x1Expected))
+    {
+        return 1;
     }
     else
     {
+        printf ("ERROR Test %d: a = %lg, b = %lg, c = %lg, x1 = %lg, x2 = %lg, nRoots = %d.\n"
+            "Expected: x1 = %lg, x2 = %lg, nRoots = %d.\n",
+             numTest, a, b, c, x1, x2, nRoots, x1Expected, x2Expected, nRootsExpected);
         return 0;
     }
-} */
+}
