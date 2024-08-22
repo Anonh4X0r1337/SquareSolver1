@@ -4,7 +4,7 @@
 #include <TXLib.h>
 
 const int INF_ROOTS = 10;
-double eps = 0.000001;
+const double eps = 0.000001;
 
 //-----------------------------------------------------------------------------
 
@@ -14,7 +14,7 @@ void flush ();
 
 void PrintOut (int nRoots, double x1, double x2);
 
-bool CompareWithZero (double a);
+bool Compare (double a, double b);
 
 int SolveLinear (double b, double c, double* x1);
 
@@ -38,29 +38,15 @@ int main()
 
 //-----------------------------------------------------------------------------
 
-bool CompareWithZero (double a)
-{
-    if (fabs (a-0) < eps)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-//-----------------------------------------------------------------------------
-
 int SolveLinear (double b, double c, double* x1)
 {
-    if (CompareWithZero (b))
+    if (Compare (b, 0))
     {
-        return (CompareWithZero (c))? INF_ROOTS : 0;
+        return (Compare (c, 0)) ? INF_ROOTS : 0;
     }
     else
     {
-        if (CompareWithZero (c))
+        if (Compare (c, 0))
         {
             return 1;
         }
@@ -81,16 +67,16 @@ int SolveSquare (double a, double b, double c, double* x1, double* x2)
     {
         return 0;
     }
-    else if (CompareWithZero (d))
+    else if (Compare (d, 0))
     {
         *x1 = -b/(2*a);
         return 1;
     }
     else
     {
-        double k = sqrt (d);
-        *x1 = (-b+k)/(2*a);
-        *x2 = -(b+k)/(2*a);
+        double sqrtD = sqrt (d);
+        *x1 = (-b+sqrtD)/(2*a);
+        *x2 = -(b+sqrtD)/(2*a);
         return 2;
     }
 }
@@ -103,7 +89,7 @@ int Solver (double a, double b, double c, double* x1, double* x2)
     assert (isfinite(b));
     assert (isfinite(c));
 
-    return (CompareWithZero (a))? SolveLinear (b, c, x1) : SolveSquare (a, b, c, x1, x2);
+    return (Compare (a, 0))? SolveLinear (b, c, x1) : SolveSquare (a, b, c, x1, x2);
 }
 
 //-----------------------------------------------------------------------------
@@ -143,10 +129,6 @@ void PrintOut (int nRoots, double x1, double x2)
             printf ("Нет корней");
             break;
         case INF_ROOTS:
-            /*assert (x1 != NULL);
-            assert (x2 != NULL);
-            assert (x1 != x2); */
-
             printf ("Х-любое число");
             break;
 
@@ -162,6 +144,13 @@ void flush ()
     {
         continue;
     }
+}
+
+//-----------------------------------------------------------------------------
+
+bool Compare (double a, double b)
+{
+    return (fabs (a-b) < eps) ? 1 : 0;
 }
 
 //-----------------------------------------------------------------------------
