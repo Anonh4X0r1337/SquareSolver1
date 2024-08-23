@@ -3,20 +3,27 @@
 #include <assert.h>
 #include <TXLib.h>
 
-const int INF_ROOTS = 10;
+struct CheckSolver
+{
+    double a, b, c;
+    double x1Expected, x2Expected;
+    int nRootsExpected, numTest;
+};
+
+//CheckSolver Test4 = {2, 0, -3, sqrt(1.5), -sqrt(1,5), 2, 4};
+
+
+
+//-----------------------------------------------------------------------------
+
+const int INF_ROOTS = -1;
 const double eps = 0.00000001;
 
 //-----------------------------------------------------------------------------
 
-double ScanDouble ();
-
-int ScanInt ();
-
 void flush ();
 
-void PrintOut (int nRoots, double x1, double x2);
-
-bool RT (double a, double b, double c, double x1Expected, double x2Expected, int nRootsExpected, int numTest);
+void RunTests (CheckSolver);
 
 bool Compare (double a, double b);
 
@@ -30,27 +37,20 @@ int Solver (double a, double b, double c, double* x1, double* x2);
 
 int main()
 {
-    printf ("Введите номер теста:\n");
-    int numTest = ScanInt ();
-
-    printf ("Введите коэффициенты уравнения:\n");
-    double a = ScanDouble ();
-    double b = ScanDouble ();
-    double c = ScanDouble ();
-
-    printf ("Введите ожидаемое количество корней уравнения:\n");
-    int nRootsExpected = ScanInt ();
-
-    printf ("Введите ожидаемые корни уравнения:\n");
-    double x1Expected = ScanDouble ();
-    double x2Expected = ScanDouble ();
-
-    if (RT (a, b, c, x1Expected, x2Expected, nRootsExpected, numTest))
+    CheckSolver Test1 = {1, 5, 0, 0, -5, 2, 1};
+    CheckSolver Test2 = {1, 0, -4, 2, -2, 2, 2};
+    CheckSolver Test3 = {2, 3, -5, 1, -2.5, 2, 3};
+    CheckSolver Test4 = {9, -98, 89, 1, 89.0/9, 2, 4};
+    CheckSolver Test5 = {1, 4, 4, -2, 0, 1, 5};
+    CheckSolver Test6 = {178, 1, 3, 0, 0, 0, 6};
+    CheckSolver Test7 = {1, 6, 5, -1, -5, 2, 7};
+    CheckSolver Test8 = {3, -24, 45, 3, 5, 2, 8};
+    CheckSolver Test9 = {1, 3, -18, -6, 3, 2, 9};
+    CheckSolver Test10 = {0, 0, 0, 0, 0, -1, 10};
+    CheckSolver arr [10] = {Test1, Test2, Test3, Test4, Test5, Test6, Test7, Test8, Test9, Test10};
+    for (int i = 0; i < 10; i++)
     {
-        printf ("Тест%d завершился успешно.", numTest);
-    }
-    else
-    {
+        RunTests (arr [i]);
     }
     return 0;
 }
@@ -113,50 +113,6 @@ int Solver (double a, double b, double c, double* x1, double* x2)
 
 //-----------------------------------------------------------------------------
 
-double ScanDouble ()
-{
-    while (1)
-    {
-        double a = 0;
-        int result = scanf ("%lg", &a);
-        if (result == 0 || getchar () != '\n')
-        {
-            flush ();
-            printf ("Введите численное значение:\n");
-            continue;
-        }
-        else
-        {
-            return a;
-        }
-    }
-}
-
-//-----------------------------------------------------------------------------
-
-void PrintOut (int nRoots, double x1, double x2)
-{
-    switch (nRoots)
-    {
-        case 2:
-            printf ("2 корня: X1 = %lg, X2 = %lg", x1, x2);
-            break;
-        case 1:
-            printf ("1 корень: X = %lg", x1);
-            break;
-        case 0:
-            printf ("Нет корней");
-            break;
-        case INF_ROOTS:
-            printf ("Х-любое число");
-            break;
-
-        default: printf ("main(): ERROR: nRoots = %d\n", nRoots);
-    }
-}
-
-//-----------------------------------------------------------------------------
-
 void flush ()
 {
     while (getchar () != '\n')
@@ -174,52 +130,33 @@ bool Compare (double a, double b)
 
 //-----------------------------------------------------------------------------
 
-int ScanInt ()
-{
-    while (1)
-    {
-        int a = 0;
-        int result = scanf ("%d", &a);
-        if (result == 0 || getchar () != '\n')
-        {
-            flush ();
-            printf ("Введите целочисленное значение:\n");
-            continue;
-        }
-        else
-        {
-            return a;
-        }
-    }
-}
-
-//-----------------------------------------------------------------------------
-
-bool RT (double a, double b, double c, double x1Expected, double x2Expected, int nRootsExpected, int numTest)
+void RunTests (CheckSolver Test)
 {
     double x1 = 0, x2 = 0;
-    int nRoots = Solver (a, b, c, &x1, &x2);
-    if (nRoots != nRootsExpected)
+    int nRoots = Solver (Test.a, Test.b, Test.c, &x1, &x2);
+    if (nRoots != Test.nRootsExpected)
     {
         printf ("ERROR Test %d: a = %lg, b = %lg, c = %lg, x1 = %lg, x2 = %lg, nRoots = %d.\n"
                 "Expected: x1 = %lg, x2 = %lg, nRoots = %d.\n",
-                 numTest, a, b, c, x1, x2, nRoots, x1Expected, x2Expected, nRootsExpected);
+                 Test.numTest, Test.a, Test.b, Test.c, x1, x2, nRoots, Test.x1Expected, Test.x2Expected, Test.nRootsExpected);
 
-        return 0;
+        return;
     }
-    if (Compare (x1, x1Expected) && Compare (x2, x2Expected))
+    if (Compare (x1, Test.x1Expected) && Compare (x2, Test.x2Expected))
     {
-        return 1;
+        printf ("Тест%d завершился успешно.\n", Test.numTest);
+        return;
     }
-    else if (Compare (x1, x2Expected) && Compare (x2, x1Expected))
+    else if (Compare (x1, Test.x2Expected) && Compare (x2, Test.x1Expected))
     {
-        return 1;
+        printf ("Тест%d завершился успешно.\n", Test.numTest);
+        return;
     }
     else
     {
         printf ("ERROR Test %d: a = %lg, b = %lg, c = %lg, x1 = %lg, x2 = %lg, nRoots = %d.\n"
-            "Expected: x1 = %lg, x2 = %lg, nRoots = %d.\n",
-             numTest, a, b, c, x1, x2, nRoots, x1Expected, x2Expected, nRootsExpected);
-        return 0;
+                "Expected: x1 = %lg, x2 = %lg, nRoots = %d.\n",
+                 Test.numTest, Test.a, Test.b, Test.c, x1, x2, nRoots, Test.x1Expected, Test.x2Expected, Test.nRootsExpected);
+        return;
     }
 }
